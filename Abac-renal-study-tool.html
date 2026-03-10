@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🫘 GU / Renal System — NCLEX Study Tool</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: #0a0e1a; font-family: Georgia, 'Times New Roman', serif; color: #e8dcc8; }
+  button { font-family: inherit; cursor: pointer; }
+
+  #header {
+    background: linear-gradient(135deg, #0a1020 0%, #0d1f3c 50%, #0a1a2e 100%);
+    border-bottom: 2px solid #1a5276;
+    padding: 20px 28px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  #header .subtitle { font-size: 11px; letter-spacing: 6px; color: #1a7abf; text-transform: uppercase; margin-bottom: 4px; }
+  #header h1 { font-size: 30px; font-weight: 700; color: #5dade2; letter-spacing: 2px; }
+  #header .desc { font-size: 13px; color: #a09070; margin-top: 4px; }
+  .tab-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 10px 18px; border: none; border-radius: 6px;
+    font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+    background: rgba(255,255,255,0.05); color: #a09070;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .tab-btn.active { background: #1a5276; color: #5dade2; border-bottom: 2px solid #5dade2; }
+
+  .panel { display: none; padding: 28px; max-width: 1200px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  .map-center { text-align: center; margin-bottom: 28px; }
+  .map-center-box {
+    display: inline-block; padding: 18px 36px;
+    background: radial-gradient(circle, #1a5276, #0a2744);
+    border-radius: 12px; border: 2px solid #5dade2;
+    box-shadow: 0 0 40px rgba(26,82,118,0.6);
+  }
+  .map-center-box .title { font-size: 26px; font-weight: 700; color: #5dade2; letter-spacing: 3px; }
+  .map-center-box .hint { font-size: 11px; color: #a9cce3; letter-spacing: 2px; margin-top: 4px; }
+  .branches-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .branch-card {
+    border-radius: 10px; padding: 18px; cursor: pointer;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-left-width: 4px; transition: all 0.3s;
+  }
+  .branch-header { display: flex; align-items: center; justify-content: space-between; }
+  .branch-header .left { display: flex; align-items: center; gap: 10px; }
+  .branch-icon { font-size: 20px; }
+  .branch-label { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+  .branch-arrow { font-size: 16px; }
+  .branch-items { margin-top: 14px; list-style: none; }
+  .branch-items li {
+    padding: 7px 0; font-size: 12.5px; color: #d4c4a0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .branch-items li:last-child { border-bottom: none; }
+  .branch-items li .dot { margin-top: 2px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 28px; }
+  .stat-card { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-val { font-size: 20px; font-weight: 700; }
+  .stat-label { font-size: 11px; color: #a09070; letter-spacing: 1px; margin-top: 4px; }
+
+  #quiz-panel { max-width: 780px; }
+  .quiz-start { text-align: center; }
+  .quiz-start h2 { color: #5dade2; font-size: 22px; margin-bottom: 8px; }
+  .quiz-start p { color: #a09070; margin-bottom: 22px; }
+  .cat-filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 22px; }
+  .cat-btn {
+    padding: 7px 15px; border-radius: 20px; border: none;
+    font-size: 12px; transition: all 0.2s; color: #a09070;
+    background: rgba(255,255,255,0.07);
+  }
+  .start-btn {
+    padding: 14px 44px;
+    background: linear-gradient(135deg, #1a5276, #2980b9);
+    border: none; border-radius: 8px; color: #5dade2;
+    font-size: 15px; font-weight: 700; letter-spacing: 2px;
+  }
+  .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .q-num { font-size: 12px; color: #a09070; }
+  .q-cat-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; letter-spacing: 1px; }
+  .progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-bottom: 22px; }
+  .progress-fill { height: 100%; background: #5dade2; border-radius: 2px; transition: width 0.3s; }
+  .q-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 22px; margin-bottom: 18px; }
+  .q-text { font-size: 15px; line-height: 1.75; color: #e8dcc8; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 13px 16px; text-align: left;
+    color: #d4c4a0; font-size: 13.5px; line-height: 1.5; transition: all 0.2s;
+  }
+  .opt-btn:hover:not(:disabled) { background: rgba(255,255,255,0.08); }
+  .opt-btn.correct { background: rgba(39,174,96,0.2) !important; border-color: #27ae60 !important; color: #7dcea0 !important; }
+  .opt-btn.wrong { background: rgba(192,57,43,0.2) !important; border-color: #c0392b !important; color: #e57373 !important; }
+  .rationale-box {
+    margin-top: 18px; padding: 18px;
+    background: rgba(93,173,226,0.08); border: 1px solid rgba(93,173,226,0.3); border-radius: 10px;
+  }
+  .rationale-label { font-size: 11px; color: #5dade2; letter-spacing: 2px; margin-bottom: 8px; }
+  .rationale-text { color: #d0e8f0; font-size: 13.5px; line-height: 1.7; margin-bottom: 14px; }
+  .next-btn { padding: 10px 26px; border: none; border-radius: 6px; color: #fff; font-size: 13px; letter-spacing: 1px; }
+
+  .results { text-align: center; }
+  .results .trophy { font-size: 52px; margin-bottom: 14px; }
+  .results h2 { color: #5dade2; font-size: 26px; margin-bottom: 8px; }
+  .results .big-score { font-size: 48px; font-weight: 700; margin-bottom: 6px; }
+  .results .pct { font-size: 18px; color: #a09070; margin-bottom: 6px; }
+  .results .feedback { font-size: 14px; margin-bottom: 28px; }
+  .result-btns { display: flex; gap: 12px; justify-content: center; margin-bottom: 32px; }
+  .result-btn { padding: 12px 26px; border-radius: 8px; font-size: 14px; border: none; }
+  .missed-section h3 { color: #e57373; margin-bottom: 14px; font-size: 15px; letter-spacing: 1px; }
+  .missed-item { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); border-radius: 8px; padding: 16px; margin-bottom: 12px; text-align: left; }
+  .missed-q { font-size: 13px; color: #e8d8a0; margin-bottom: 10px; line-height: 1.6; }
+  .missed-yours { font-size: 12px; color: #e57373; margin-bottom: 5px; }
+  .missed-correct { font-size: 12px; color: #7dcea0; margin-bottom: 8px; }
+  .missed-rat { font-size: 12px; color: #c8b890; font-style: italic; line-height: 1.6; }
+
+  .drugs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+  .drug-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-left: 4px solid #1a5276; border-radius: 10px; padding: 18px; }
+  .drug-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .drug-name { font-size: 15px; font-weight: 700; color: #5dade2; }
+  .drug-class { font-size: 11px; color: #2980b9; letter-spacing: 1px; margin-top: 2px; }
+  .drug-use-badge { background: rgba(26,82,118,0.3); padding: 3px 10px; border-radius: 12px; font-size: 11px; color: #a9cce3; text-align: right; max-width: 160px; line-height: 1.4; }
+  .drug-moa { font-size: 12px; color: #a09070; margin-bottom: 8px; line-height: 1.6; }
+  .drug-moa span { color: #7fb3d3; }
+  .drug-nursing { font-size: 12px; color: #a0c0a0; margin-bottom: 8px; line-height: 1.6; }
+  .drug-nursing span { color: #7db87d; }
+  .drug-alert { font-size: 11px; color: #e8a060; background: rgba(232,160,96,0.1); border-radius: 6px; padding: 6px 10px; line-height: 1.5; }
+  .ref-title { color: #5dade2; font-size: 20px; margin-bottom: 22px; letter-spacing: 2px; }
+
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .drugs-grid { grid-template-columns: 1fr; }
+    #header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div>
+    <div class="subtitle">NCLEX Master Series</div>
+    <h1>🫘 GU / Renal System</h1>
+    <div class="desc">Concept Map · 50 NCLEX Questions · Pharmacology Reference</div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('map')">📊 Concept Map</button>
+    <button class="tab-btn" onclick="showTab('quiz')">📝 NCLEX Quiz</button>
+    <button class="tab-btn" onclick="showTab('drugs')">💊 Drug Reference</button>
+  </div>
+</div>
+
+<div id="map-panel" class="panel active">
+  <div class="map-center">
+    <div class="map-center-box">
+      <div class="title">🫘 KIDNEYS</div>
+      <div class="hint">Click a branch to expand</div>
+    </div>
+  </div>
+  <div class="branches-grid" id="branches"></div>
+  <div class="stats-grid">
+    <div class="stat-card" style="border:1px solid #c0392b44"><div class="stat-val" style="color:#c0392b">3 Types</div><div class="stat-label">AKI Categories</div></div>
+    <div class="stat-card" style="border:1px solid #8e44ad44"><div class="stat-val" style="color:#8e44ad">5 Stages</div><div class="stat-label">CKD Progression</div></div>
+    <div class="stat-card" style="border:1px solid #27ae6044"><div class="stat-val" style="color:#27ae60">3 Modalities</div><div class="stat-label">Dialysis Options</div></div>
+    <div class="stat-card" style="border:1px solid #5dade244"><div class="stat-val" style="color:#5dade2">50 Total</div><div class="stat-label">NCLEX Questions</div></div>
+  </div>
+</div>
+
+<div id="quiz-panel" class="panel">
+  <div id="quiz-start-screen" class="quiz-start">
+    <h2>NCLEX-Style Practice Quiz</h2>
+    <p>50 questions covering all GU/Renal topics</p>
+    <div class="cat-filters" id="cat-filters"></div>
+    <button class="start-btn" onclick="startQuiz()">START QUIZ (<span id="q-count">50</span> Questions)</button>
+  </div>
+  <div id="quiz-question-screen" style="display:none">
+    <div class="q-meta">
+      <div class="q-num" id="q-num-label"></div>
+      <div class="q-cat-badge" id="q-cat-badge"></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="q-box"><div class="q-text" id="q-text"></div></div>
+    <div class="options" id="options"></div>
+    <div class="rationale-box" id="rationale-box" style="display:none">
+      <div class="rationale-label">RATIONALE</div>
+      <div class="rationale-text" id="rationale-text"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQ()">Next Question →</button>
+    </div>
+  </div>
+  <div id="quiz-results-screen" style="display:none" class="results">
+    <div class="trophy" id="trophy"></div>
+    <h2>Quiz Complete!</h2>
+    <div class="big-score" id="big-score"></div>
+    <div class="pct" id="pct-score"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="result-btns">
+      <button class="result-btn" style="background:#1a5276;color:#5dade2" onclick="startQuiz()">Retake Quiz</button>
+      <button class="result-btn" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.2);color:#e8dcc8" onclick="backToStart()">Change Category</button>
+    </div>
+    <div class="missed-section" id="missed-section"></div>
+  </div>
+</div>
+
+<div id="drugs-panel" class="panel">
+  <div class="ref-title">💊 Renal Pharmacology Reference</div>
+  <div class="drugs-grid" id="drugs-grid"></div>
+</div>
+
+<script>
+const branches = [
+  { id:"anatomy", label:"Anatomy & Physiology", color:"#2980b9", icon:"🔬",
+    items:["Retroperitoneal — right kidney slightly lower than left","Functional unit: nephron (approx. 1 million per kidney)","Renal cortex (glomeruli) + medulla (tubules, loops of Henle)","Glomerulus filters ~180 L/day of plasma","Juxtaglomerular apparatus secretes renin → RAAS activation","Normal GFR: 90–120 mL/min","Erythropoietin (EPO) production → stimulates bone marrow RBC production","Activates Vitamin D → 1,25-dihydroxyvitamin D (calcitriol)","Acid-base balance: excretes H⁺, regenerates HCO₃⁻","Regulates Na⁺, K⁺, Ca²⁺, phosphate, and water balance"] },
+  { id:"aki", label:"Acute Kidney Injury (AKI)", color:"#c0392b", icon:"⚡",
+    items:["Sudden cessation of renal function — affects ~30% of ICU patients","Mortality: 70–90% in critically ill","Pre-Renal: ↓ blood flow (dehydration, HF, ↓CO, sepsis, hemorrhage)","Intra-Renal: Direct tubular damage (ATN, ischemia, nephrotoxins)","Post-Renal: Obstruction (BPH, calculi, prostate cancer, tumors)","Oliguric phase: <400 mL/day; days 1–7; lasts 10–14 days","Diuretic phase: 1–5+ L/day — risk of hypokalemia + dehydration","Recovery phase: BUN/Cr normalize; may take up to 12 months","Key manifestations: ↑K⁺, metabolic acidosis, fluid overload, uremia","Report UO <30 mL/hr IMMEDIATELY to provider"] },
+  { id:"ckd", label:"Chronic Kidney Disease (CKD)", color:"#8e44ad", icon:"📉",
+    items:["Progressive, irreversible kidney damage >3 months duration","Diabetes mellitus (50%) and HTN (25%) = 75% of all CKD","Stage 1: GFR ≥90 — kidney damage w/ normal function","Stage 2: GFR 60–89 — mild loss of function","Stage 3a: GFR 45–59 / Stage 3b: GFR 30–44 — moderate loss","Stage 4: GFR 15–29 — severe loss; prepare for renal replacement","Stage 5 (ESRD): GFR <15 — dialysis or transplant required","Uremia: nausea, fatigue, confusion, pruritus, uremic frost (skin)","Anemia of CKD: ↓EPO → fatigue, pallor, dyspnea","Renal osteodystrophy: ↓Vit D → ↑PTH → bone resorption/fractures"] },
+  { id:"complications", label:"Systemic Complications", color:"#16a085", icon:"🚨",
+    items:["Hyperkalemia → peaked T waves, widened QRS, V-fib (most life-threatening)","Metabolic acidosis → Kussmaul respirations (compensatory)","Fluid overload → HTN, heart failure, pulmonary edema","Hyponatremia (dilutional) → confusion, seizures","Anemia → ↓EPO + platelet dysfunction → fatigue + bleeding risk","Uremic pericarditis → pericardial friction rub → risk of tamponade","Renal osteodystrophy → pathologic fractures, bone pain","Neurologic: restless legs syndrome, peripheral neuropathy, asterixis","GI: nausea, vomiting, GI bleeding, anorexia","Skin: uremic frost, pruritus, pallor, ecchymoses"] },
+  { id:"dialysis", label:"Dialysis", color:"#27ae60", icon:"🔄",
+    items:["Hemodialysis: diffusion + filtration; 3–4x/week in CKD; daily in acute","AV fistula: preferred access; matures minimum 6 weeks before use","NEVER take BP or draw blood on the AV fistula/graft arm","Assess fistula every shift: palpate thrill + auscultate bruit","Hold antihypertensives 4–6 hrs before HD to prevent hypotension","Post-HD: watch for disequilibrium syndrome (HA, N/V, altered LOC)","Peritoneal dialysis: Inflow → Dwell → Drain; warm dialysate to 98.6°F","Cloudy PD return = PERITONITIS — notify provider immediately","CRRT: for hemodynamically UNSTABLE ICU patients; continuous slow removal","AEIOU indications: Acidosis, Electrolytes, Intoxication, Overload, Uremia"] },
+  { id:"transplant", label:"Kidney Transplant", color:"#d35400", icon:"🏥",
+    items:["Definitive treatment for ESRD; cadaver donor or living related","HLA matching: 6 antigens — perfect match reduces rejection risk","Post-op: I&O every 30–60 min; monitor creatinine and electrolytes closely","Hyperacute rejection: minutes–hours post-op; antibody-mediated; IRREVERSIBLE","Acute rejection: days–months; fever + oliguria + ↑creatinine; TREATABLE","Chronic rejection: months–years; progressive azotemia + HTN; IRREVERSIBLE","Lifelong immunosuppression: Imuran + Cellcept + Prednisone","Steroid SE: Cushingoid, osteoporosis, glucose intolerance, impaired wound healing","CMV = most common post-transplant viral infection","Infection risk: bacterial, fungal (Candida, Aspergillus), viral (CMV, EBV)"] },
+  { id:"labs", label:"Labs & Diagnostics", color:"#2471a3", icon:"🧪",
+    items:["BUN: normal 10–20 mg/dL; ↑ indicates protein breakdown/uremia","Creatinine: normal 0.6–1.2 mg/dL; most sensitive renal function marker","GFR: calculated from creatinine, age, race, sex (CKD-EPI equation)","Creatinine clearance (24-hr urine): gold standard GFR estimate","UA: casts (RBC = glomerular injury), protein, specific gravity","Serum K⁺: most critical to monitor — hyperkalemia = most life-threatening","Serum HCO₃⁻: low = metabolic acidosis; normal 22–26 mEq/L","CBC: normocytic anemia — ↓RBC, ↓Hgb, ↓Hct in CKD","Renal ultrasound: first-line imaging for AKI/CKD workup","CT, IVP, renal biopsy for definitive diagnosis of underlying disease"] },
+  { id:"nursing", label:"Nursing Management", color:"#7f8c8d", icon:"👩‍⚕️",
+    items:["Report UO <30 mL/hr IMMEDIATELY — critical threshold","Daily weight: same scale, same time, same clothes, after voiding","Strict I&O every shift — fluid balance is cornerstone of renal care","Dietary restrictions: ↓protein (1g/kg), ↓K⁺, ↓Na⁺ (2–4g), ↓phosphate","Fluid restriction: typically 1–2 L/day based on output + insensible loss","Avoid nephrotoxins: aminoglycosides, NSAIDs, contrast dye, cephalosporins","Monitor ECG for peaked T waves (hyperkalemia) and dysrhythmias","Fistula arm: NO BP, NO IV access, NO blood draws — protect at all times","Skin care: moisturize for pruritus; turn q2h; pad bony prominences","Education: signs of infection, rejection (transplant), dietary compliance"] }
+];
+
+const questions = [
+  {id:1,category:"AKI",q:"A client with AKI has a urine output of 200 mL in 24 hours. The nurse identifies this as which phase?",options:["A) Diuretic phase","B) Recovery phase","C) Oliguric phase","D) Pre-renal phase"],answer:2,rationale:"Oliguria is defined as <400 mL/day. This occurs 1–7 days post-injury and typically lasts 10–14 days — the oliguric phase. This is the most dangerous phase due to fluid overload, hyperkalemia, and metabolic acidosis."},
+  {id:2,category:"AKI",q:"Which electrolyte imbalance is MOST life-threatening in a client with oliguric AKI?",options:["A) Hyponatremia","B) Hyperkalemia","C) Hypocalcemia","D) Hypomagnesemia"],answer:1,rationale:"Hyperkalemia is the most life-threatening complication of AKI. The kidneys cannot excrete potassium, causing dangerous cardiac dysrhythmias. ECG changes progress from peaked T waves to widened QRS to ventricular fibrillation."},
+  {id:3,category:"AKI",q:"The nurse is caring for a client with AKI. Which finding requires IMMEDIATE intervention?",options:["A) BUN of 28 mg/dL","B) Urine output of 25 mL/hour","C) Serum creatinine of 1.2 mg/dL","D) Specific gravity of 1.020"],answer:1,rationale:"Urine output less than 30 mL/hour must be reported immediately — it indicates inadequate renal perfusion and potential deterioration. This is the critical threshold for ALL renal patients."},
+  {id:4,category:"AKI",q:"A client with AKI develops Kussmaul respirations. The nurse recognizes this as compensation for which condition?",options:["A) Respiratory alkalosis","B) Metabolic alkalosis","C) Metabolic acidosis","D) Respiratory acidosis"],answer:2,rationale:"Kussmaul respirations (deep, rapid breathing) compensate for metabolic acidosis by blowing off CO₂. In AKI, the kidneys cannot excrete H⁺ ions or regenerate bicarbonate, causing the HCO₃⁻ to fall and pH to drop."},
+  {id:5,category:"AKI",q:"Which type of AKI is caused by benign prostatic hyperplasia?",options:["A) Pre-renal AKI","B) Intra-renal AKI","C) Post-renal AKI","D) Functional AKI"],answer:2,rationale:"BPH causes mechanical obstruction of urine outflow — the hallmark of post-renal AKI. Other causes include calculi, prostate cancer, tumors, and bilateral ureteral obstruction. Relieving the obstruction often restores function."},
+  {id:6,category:"AKI",q:"During the diuretic phase of AKI, the nurse should MOST closely monitor for:",options:["A) Hyperkalemia and fluid overload","B) Hypokalemia and dehydration","C) Metabolic acidosis and uremia","D) Pulmonary edema and HTN"],answer:1,rationale:"In the diuretic phase, urine output rises to 1–5+ L/day. Large electrolyte losses create significant risk for hyponatremia, hypokalemia, and dehydration. The kidneys are recovering but cannot yet concentrate urine."},
+  {id:7,category:"AKI",q:"Which finding indicates fluid overload in a client with oliguric AKI?",options:["A) Flat neck veins, weak pulse, dry mucous membranes","B) Distended neck veins, bounding pulse, edema, hypertension","C) Tachycardia, hypotension, decreased skin turgor","D) Weight loss of 2 kg over 24 hours"],answer:1,rationale:"Fluid retention from decreased urine output presents as distended neck veins, bounding pulse, pitting edema, hypertension, and rapid weight gain. This can progress to pulmonary edema and heart failure."},
+  {id:8,category:"AKI",q:"What is the MOST common cause of AKI in hospitalized patients?",options:["A) Post-renal obstruction","B) Glomerulonephritis","C) Ischemia, sepsis, and nephrotoxins","D) Bilateral ureteral obstruction"],answer:2,rationale:"Ischemia, sepsis, and nephrotoxins are the most common causes of hospital-acquired AKI, leading to acute tubular necrosis (ATN). Approximately 30% of critically ill patients develop AKI with a mortality rate of 70–90%."},
+  {id:9,category:"AKI",q:"Which laboratory finding indicates the recovery phase of AKI?",options:["A) BUN 80 mg/dL, creatinine 4.2 mg/dL","B) Urine output 150 mL/day","C) BUN and creatinine plateau then trend toward normal","D) Bicarbonate of 14 mEq/L"],answer:2,rationale:"The recovery phase begins when GFR increases. BUN and creatinine plateau then decline toward normal values. Urine output returns to 1–2 L/day. Full recovery may take up to 12 months."},
+  {id:10,category:"AKI",q:"Which dietary modification is MOST appropriate for a client in the oliguric phase of AKI?",options:["A) High protein to prevent muscle wasting","B) Low carbohydrate, high protein","C) Restricted protein (1g/kg), increased carbs, restricted Na⁺ and K⁺","D) Unrestricted diet with vitamin supplementation"],answer:2,rationale:"Protein is restricted to 1g/kg to minimize azotemia. Carbohydrates are increased for energy and protein-sparing. Sodium and potassium are restricted based on lab values. TPN may be used if oral intake is insufficient."},
+  {id:11,category:"CKD",q:"A client's GFR is 35 mL/min. The nurse identifies this as which stage of CKD?",options:["A) Stage 2","B) Stage 3a","C) Stage 3b","D) Stage 4"],answer:2,rationale:"Stage 3b CKD = GFR 30–44 mL/min, representing moderate to severe loss of kidney function. Stage 3a is 45–59; Stage 4 is 15–29 mL/min."},
+  {id:12,category:"CKD",q:"Which two conditions account for 75% of all CKD cases?",options:["A) Glomerulonephritis and lupus","B) Diabetes mellitus and hypertension","C) Polycystic kidney disease and recurrent UTIs","D) Nephrolithiasis and chronic pyelonephritis"],answer:1,rationale:"Diabetes mellitus accounts for approximately 50% of CKD cases and hypertension accounts for approximately 25%, together making up 75% of all chronic kidney disease."},
+  {id:13,category:"CKD",q:"Which finding is consistent with uremia in a client with ESRD?",options:["A) Polyuria, polydipsia, hypertension","B) Nausea, fatigue, confusion, and pruritus","C) Bradycardia and hypothermia","D) Increased appetite and weight gain"],answer:1,rationale:"Uremia presents with nausea, fatigue, confusion, and pruritus from accumulation of urea and other waste products. Uremic frost (urea crystals on skin) is a late, severe manifestation."},
+  {id:14,category:"CKD",q:"A client with CKD asks why potassium must be restricted. The nurse's BEST response is:",options:["A) 'Your kidneys cannot excrete potassium, which can cause fatal heart rhythms.'","B) 'Potassium restriction prevents kidney stones.'","C) 'High potassium only causes mild muscle weakness.'","D) 'Potassium restriction is temporary until dialysis begins.'"],answer:0,rationale:"In CKD, impaired potassium excretion leads to hyperkalemia. This is dangerous because elevated potassium can cause life-threatening cardiac dysrhythmias, including ventricular fibrillation and cardiac arrest."},
+  {id:15,category:"CKD",q:"A client with Stage 5 CKD and GFR of 10 mL/min requires:",options:["A) Mild dietary protein restriction only","B) Moderate exercise program","C) Renal replacement therapy (dialysis or transplant)","D) Watchful waiting — no intervention yet needed"],answer:2,rationale:"Stage 5 CKD (GFR <15 mL/min) = ESRD. Renal replacement therapy — dialysis or kidney transplantation — is required for survival. Without it, uremia and its complications are fatal."},
+  {id:16,category:"CKD",q:"Which population is at HIGHEST risk for developing CKD?",options:["A) Young adult Asian females","B) Middle-aged Caucasian males","C) Older adults, African Americans, and Native Americans","D) Adolescents with recurrent UTIs"],answer:2,rationale:"CKD disproportionately affects older adults, African Americans, and Native Americans due to higher prevalence of diabetes, hypertension, and genetic risk factors (e.g., APOL1 gene variants in African Americans)."},
+  {id:17,category:"CKD",q:"A CKD client's urinalysis shows proteinuria. The nurse understands this indicates:",options:["A) Normal kidney filtration","B) Glomerular damage allowing protein to leak through the filtration membrane","C) Adequate hydration status","D) Resolving kidney inflammation"],answer:1,rationale:"Proteinuria indicates glomerular membrane damage — protein normally cannot cross the healthy filtration membrane. It is both a marker of kidney damage and a diagnostic criterion for CKD when present >3 months."},
+  {id:18,category:"CKD",q:"Which statement by a CKD client demonstrates understanding of fluid management?",options:["A) 'I can drink as much water as I want to flush my kidneys.'","B) 'I should limit fluids to 1–2 liters per day and restrict sodium.'","C) 'I only need to restrict fluids once I start dialysis.'","D) 'Drinking extra water will prevent my kidneys from getting worse.'"],answer:1,rationale:"Fluid intake of 1–2 L/day and sodium restriction of 2–4 g/day are standard for CKD. Sodium retention worsens fluid overload and hypertension, further damaging the kidneys. Excess fluid increases the workload on failing kidneys."},
+  {id:19,category:"Complications",q:"A client in oliguric AKI has peaked T waves and a K⁺ of 6.8 mEq/L. The PRIORITY action is:",options:["A) Encourage a high-potassium snack to check accuracy","B) Notify the provider and prepare to administer Kayexalate","C) Administer a potassium supplement as ordered","D) Restrict oral fluids and reassess in 2 hours"],answer:1,rationale:"A K⁺ of 6.8 mEq/L with peaked T waves is a life-threatening emergency. Notify the provider immediately and prepare Kayexalate (removes K⁺), calcium gluconate (cardiac membrane protection), and insulin/dextrose (shifts K⁺ into cells)."},
+  {id:20,category:"Complications",q:"A client with CKD develops a pericardial friction rub. The nurse recognizes this as:",options:["A) Pleuritis from fluid overload","B) Uremic pericarditis — a serious complication of ESRD","C) Expected finding with pleural effusion","D) Benign aortic stenosis murmur"],answer:1,rationale:"Uremic pericarditis occurs in ESRD when urea irritates the pericardium. A friction rub is the hallmark finding. This is an emergency — it can progress to cardiac tamponade. Dialysis is the primary treatment."},
+  {id:21,category:"Complications",q:"Which acid-base imbalance is MOST associated with the oliguric phase of AKI?",options:["A) Respiratory acidosis","B) Respiratory alkalosis","C) Metabolic alkalosis","D) Metabolic acidosis"],answer:3,rationale:"In oliguric AKI, the kidneys cannot excrete H⁺ ions or regenerate bicarbonate → metabolic acidosis. ABG shows: ↓pH, ↓HCO₃⁻, normal PaCO₂ (primary); Kussmaul respirations compensate by ↓PaCO₂."},
+  {id:22,category:"Complications",q:"The nurse assesses a CKD client and notes white crystalline deposits on the skin. This finding is called:",options:["A) Psoriasis from immune suppression","B) Normal aging skin changes","C) Uremic frost — a late sign of severe uremia","D) Calcium deposits from hyperphosphatemia"],answer:2,rationale:"Uremic frost is the crystallization of urea on the skin surface (particularly face and forehead). It is a late-stage manifestation of ESRD indicating severe uremia — dialysis is required urgently."},
+  {id:23,category:"Complications",q:"A client with AKI receiving TPN is at increased risk for which complications?",options:["A) Hypoglycemia and dehydration","B) Fluid overload and infection","C) Malnutrition and weight loss","D) Hypokalemia and metabolic alkalosis"],answer:1,rationale:"TPN increases fluid overload risk (large volumes in a patient with impaired excretion) and infection risk — the glucose-rich solution with central venous access creates an ideal environment for bacterial growth."},
+  {id:24,category:"Dialysis",q:"The nurse is assessing a client on hemodialysis. Which action is MOST important every shift?",options:["A) Take blood pressure in the arm with the AV fistula","B) Assess for thrill and bruit in the fistula arm","C) Administer morning antihypertensives before dialysis","D) Encourage high-potassium foods between sessions"],answer:1,rationale:"Palpating for thrill (vibration) and auscultating for bruit every shift assesses AV fistula patency. Absence indicates possible thrombosis — a vascular emergency requiring immediate provider notification."},
+  {id:25,category:"Dialysis",q:"When should antihypertensive medications be held before hemodialysis?",options:["A) 12 hours before dialysis","B) 4–6 hours before dialysis","C) Administer as scheduled regardless of dialysis","D) 24 hours before dialysis"],answer:1,rationale:"Antihypertensives are held 4–6 hours before hemodialysis because ultrafiltration removes fluid and can cause significant hypotension — antihypertensives would compound this dangerous drop in perfusion pressure."},
+  {id:26,category:"Dialysis",q:"After hemodialysis, a client develops headache, nausea, and altered level of consciousness. The nurse recognizes this as:",options:["A) Hyperkalemia rebound","B) Hypoglycemia from the procedure","C) Dialysis disequilibrium syndrome","D) Air embolism"],answer:2,rationale:"Dialysis disequilibrium syndrome occurs after HD due to rapid fluid and solute shifts — the brain equilibrates slower than the blood, causing cerebral edema. Signs: headache, N/V, altered LOC, HTN, and rarely seizures."},
+  {id:27,category:"Dialysis",q:"A nurse palpates an AV fistula and finds no thrill. The PRIORITY action is:",options:["A) Apply a warm compress and reassess in 30 minutes","B) Notify the provider immediately","C) Elevate the extremity above heart level","D) Document and reassess at the next scheduled time"],answer:1,rationale:"Absence of thrill indicates possible fistula thrombosis — a vascular emergency. The AV fistula is the patient's lifeline for dialysis. The provider must be notified immediately for potential thrombectomy."},
+  {id:28,category:"Dialysis",q:"How long must an AV fistula mature before use for hemodialysis?",options:["A) 2 weeks","B) 3–4 weeks","C) A minimum of 6 weeks","D) 3 months minimum"],answer:2,rationale:"The AV fistula must mature for a minimum of 6 weeks so vein walls thicken enough to withstand repeated needle punctures. Using it prematurely risks rupture, hematoma, and loss of access."},
+  {id:29,category:"Dialysis",q:"The nurse suspects peritonitis in a client on peritoneal dialysis. The HALLMARK sign is:",options:["A) Clear yellow return dialysate","B) Cloudy return dialysate with abdominal pain","C) Dark amber return dialysate","D) Decreased abdominal girth with cramping"],answer:1,rationale:"Cloudy return dialysate is the hallmark sign of peritonitis — the most serious complication of peritoneal dialysis. Additional signs include abdominal pain, fever, and malaise. Strict aseptic technique prevents this complication."},
+  {id:30,category:"Dialysis",q:"When warming peritoneal dialysis fluid, the nurse should use:",options:["A) Microwave oven on high for 3 minutes","B) Boiling water bath","C) Low-setting heating pad to body temperature (98.6°F)","D) Room temperature — no warming is needed"],answer:2,rationale:"Dialysate is warmed to body temperature (98.6°F) with a low-setting heating pad. Microwaves create uneven hot spots that could cause internal peritoneal burns. Proper temperature promotes vasodilation of the peritoneal membrane."},
+  {id:31,category:"Dialysis",q:"CRRT is the preferred dialysis method for which patient?",options:["A) Stable outpatient CKD clients","B) Hemodynamically unstable ICU patients","C) Patients with newly placed AV fistulas","D) Patients with active peritonitis"],answer:1,rationale:"CRRT is indicated for hemodynamically unstable patients. Slow, continuous fluid removal over 8–12+ hours maintains hemodynamic stability. Unlike rapid HD, it avoids the sudden fluid shifts that can cause cardiovascular collapse."},
+  {id:32,category:"Dialysis",q:"The nurse identifies indications for dialysis using the mnemonic AEIOU. 'I' stands for:",options:["A) Inflammation","B) Infection","C) Intoxication / Ingestion of toxins","D) Ischemia"],answer:2,rationale:"AEIOU = Acidosis (refractory metabolic), Electrolyte abnormalities (dangerous hyperkalemia), Intoxication/Ingestion (dialyzable drugs or toxins), fluid Overload (refractory to diuretics), Uremic symptoms (encephalopathy, pericarditis)."},
+  {id:33,category:"Dialysis",q:"A client's return peritoneal dialysate has a brown discoloration with foul odor. This most suggests:",options:["A) Normal color variation in dialysate","B) Bowel perforation — a surgical emergency","C) Successful toxin removal","D) Dehydration causing concentrated dialysate"],answer:1,rationale:"Brown discoloration with fecal odor indicates bowel perforation — a life-threatening surgical emergency. Clear/yellow = normal; cloudy = peritonitis; bloody = vessel injury; brown/fecal smell = bowel perforation."},
+  {id:34,category:"Transplant",q:"A kidney transplant recipient develops fever, oliguria, and rising creatinine 2 weeks post-op. The nurse recognizes this as:",options:["A) Hyperacute rejection","B) Acute rejection","C) Chronic rejection","D) Post-operative infection only"],answer:1,rationale:"Acute rejection occurs days to months post-transplant and presents with fever, oliguria, graft tenderness, and rising creatinine. Unlike hyperacute rejection, it is TREATABLE with increased immunosuppression if caught early."},
+  {id:35,category:"Transplant",q:"What occurs within minutes to hours of kidney transplantation and is irreversible?",options:["A) Acute cellular rejection","B) Chronic rejection","C) Hyperacute rejection","D) Steroid-induced nephropathy"],answer:2,rationale:"Hyperacute (antibody-mediated) rejection occurs minutes to hours post-transplant due to pre-formed circulating antibodies against donor antigens. The kidney turns mottled and must be surgically removed — it is irreversible."},
+  {id:36,category:"Transplant",q:"Which immunosuppressive drug combination is commonly used post-kidney transplant?",options:["A) Prednisone + Kayexalate + Epogen","B) Imuran + Cellcept + Prednisone","C) Lasix + Mannitol + Dopamine","D) Cyclosporine + Aspirin + Penicillin"],answer:1,rationale:"Imuran (azathioprine) and Cellcept (mycophenolate mofetil) combined with Prednisone is the standard triple immunosuppressive therapy used to prevent kidney transplant rejection. This therapy is lifelong."},
+  {id:37,category:"Transplant",q:"A post-kidney transplant client suddenly develops decreased urine output and fever on day 10. The nurse's PRIORITY action is:",options:["A) Encourage fluid intake and recheck in 1 hour","B) Notify the provider immediately — signs of acute rejection","C) Apply warm compress to the transplant site","D) Administer the ordered PRN antiemetic"],answer:1,rationale:"Sudden oliguria with fever post-transplant is an emergency suggesting acute rejection or ureteral anastomosis failure. Immediate provider notification is required — early intervention may save the transplanted kidney."},
+  {id:38,category:"Transplant",q:"A transplant recipient on long-term corticosteroids should be monitored for:",options:["A) Hypokalemia, weight loss, and hypoglycemia","B) Impaired wound healing, osteoporosis, and Cushingoid effects","C) Improved immune function and decreased infection risk","D) Improved bone density and normalization of blood glucose"],answer:1,rationale:"Long-term corticosteroid use causes: impaired wound healing, emotional disturbances, osteoporosis, Cushingoid effects (moon face, buffalo hump, central obesity), glucose intolerance, cataracts, and increased infection risk."},
+  {id:39,category:"Transplant",q:"Which statement about chronic kidney transplant rejection is accurate?",options:["A) It occurs within 24 hours and is reversed with high-dose steroids","B) It progresses over months to years and is irreversible","C) It is caused by a bacterial infection of the graft","D) It responds well to increased immunosuppression"],answer:1,rationale:"Chronic rejection develops slowly over months to years and is irreversible — characterized by progressive azotemia, proteinuria, and hypertension. Eventually leads to graft failure. No effective treatment exists to reverse it."},
+  {id:40,category:"Transplant",q:"The most common post-transplant viral infection the nurse should monitor for is:",options:["A) Hepatitis A","B) Cytomegalovirus (CMV)","C) Influenza","D) Herpes simplex type 1"],answer:1,rationale:"CMV is the most common viral infection following kidney transplantation, particularly in the first few months. Immunosuppression reactivates latent CMV. Prophylactic valganciclovir is standard post-transplant care."},
+  {id:41,category:"Nursing",q:"The most accurate technique for monitoring fluid status in a renal client is:",options:["A) Weigh after breakfast on any available scale","B) Weigh at any time on the same scale","C) Same scale, same time, same clothing, after voiding before breakfast","D) Average readings from different scales for accuracy"],answer:2,rationale:"Accurate daily weights require: same scale, same time of day (morning), same type of clothing, and voiding first. A weight gain of 1 kg ≈ 1 liter of fluid retained — this is the gold standard for fluid monitoring."},
+  {id:42,category:"Nursing",q:"Which drug class should be avoided in patients with or at risk for AKI?",options:["A) Beta-blockers","B) Calcium channel blockers","C) Aminoglycosides and NSAIDs","D) ACE inhibitors in all patients"],answer:2,rationale:"Aminoglycosides (gentamicin, tobramycin) are directly nephrotoxic → ATN. NSAIDs reduce prostaglandin-mediated afferent arteriole dilation → ↓GFR. Other nephrotoxins: contrast dye, cephalosporins, cisplatin."},
+  {id:43,category:"Nursing",q:"A client with CKD has a serum phosphate of 6.8 mg/dL. Which medication should be administered WITH meals?",options:["A) Kayexalate","B) Amphojel (aluminum hydroxide)","C) Sodium bicarbonate","D) Furosemide"],answer:1,rationale:"Amphojel is a phosphate binder that MUST be given WITH meals to bind dietary phosphate in the GI tract before absorption. This controls hyperphosphatemia, which contributes to renal osteodystrophy and cardiovascular disease."},
+  {id:44,category:"Nursing",q:"A nurse teaches a client with CKD about the purpose of Epogen (epoetin alfa). Which explanation is CORRECT?",options:["A) It lowers potassium by exchanging it with sodium in the gut","B) It stimulates red blood cell production to treat anemia of CKD","C) It binds phosphate to prevent renal osteodystrophy","D) It prevents rejection after kidney transplantation"],answer:1,rationale:"Healthy kidneys produce EPO, stimulating bone marrow RBC production. CKD impairs EPO production → normocytic anemia. Epogen (synthetic EPO) replaces this. Target Hgb: 10–12 g/dL. Monitor BP — HTN is a side effect."},
+  {id:45,category:"Nursing",q:"The PRIORITY concern before administering IV contrast dye to a client with CKD is:",options:["A) Serum glucose level","B) Serum creatinine and GFR before contrast administration","C) Complete blood count","D) Liver function tests"],answer:1,rationale:"Radiocontrast dye is nephrotoxic and can cause contrast-induced nephropathy (CIN) or worsen existing AKI. Creatinine/GFR must be assessed. Pre-hydration with NS is standard prophylaxis. Metformin must be held."},
+  {id:46,category:"Nursing",q:"A nurse is preparing a client for a kidney biopsy. Which pre-procedure assessment is PRIORITY?",options:["A) Serum glucose level","B) Coagulation studies (PT/INR and platelet count)","C) Liver function tests","D) Abdominal X-ray"],answer:1,rationale:"Kidney biopsy carries significant bleeding risk. PT/INR and platelet count MUST be assessed first. If INR >1.5 or platelets <50,000, the biopsy may be contraindicated or require correction first (FFP, platelets, Vitamin K)."},
+  {id:47,category:"Nursing",q:"Which pre-renal AKI cause is the nurse MOST likely to prevent through nursing interventions?",options:["A) Congenital renal hypoplasia","B) Dehydration from inadequate fluid resuscitation","C) Autoimmune glomerulonephritis","D) Renal artery stenosis"],answer:1,rationale:"Pre-renal AKI from dehydration is largely preventable through nursing vigilance: adequate hydration, monitoring I&O, reporting oliguria early, and ensuring at-risk patients receive IV fluids as ordered."},
+  {id:48,category:"Nursing",q:"Which assessment finding in a peritoneal dialysis client requires IMMEDIATE nursing intervention?",options:["A) Return dialysate is slightly yellow and clear","B) Abdominal girth unchanged from yesterday","C) Return dialysate is cloudy and client reports abdominal pain","D) Dwell time is 30 minutes as prescribed"],answer:2,rationale:"Cloudy return dialysate with abdominal pain = peritonitis. Immediate actions: notify provider, send return dialysate for culture/sensitivity, prepare for antibiotic administration. This is the most serious PD complication."},
+  {id:49,category:"Nursing",q:"A transplant client asks why immunosuppressive drugs are needed for life. The nurse's BEST response is:",options:["A) 'The drugs prevent bacterial infections at the surgical site.'","B) 'Your immune system will recognize the new kidney as foreign and try to reject it without these medications.'","C) 'These medications are only needed for the first year post-transplant.'","D) 'The drugs help the transplanted kidney filter waste more effectively.'"],answer:1,rationale:"The immune system recognizes the transplanted kidney as non-self and mounts a rejection response. Lifelong immunosuppressive therapy is essential to prevent the immune system from destroying the graft."},
+  {id:50,category:"Nursing",q:"The nurse receives an order for gentamicin for a client with AKI. The APPROPRIATE action is:",options:["A) Administer as ordered — aminoglycosides are safe in renal patients","B) Contact the provider — aminoglycosides are nephrotoxic and contraindicated in AKI","C) Administer half the ordered dose to compensate for renal impairment","D) Hold and wait for the next scheduled assessment"],answer:1,rationale:"Aminoglycosides (gentamicin, tobramycin) are directly nephrotoxic and cause ATN. They are contraindicated in AKI. The nurse must contact the provider immediately for an alternative antibiotic. This is a medication safety priority."}
+];
+
+const drugs = [
+  {name:"Furosemide (Lasix)",cls:"Loop Diuretic",use:"Fluid overload in AKI/CKD",moa:"Inhibits Na-K-2Cl cotransporter in the ascending loop of Henle → ↑ sodium and water excretion → ↑ urine output",nursing:"Monitor K⁺ (hypokalemia). Daily weights. Strict I&O. Hold if SBP <90 mmHg. Check hearing with high IV doses.",alert:"⚠️ HYPOKALEMIA — replace K⁺ per orders. Ototoxicity with rapid high-dose IV administration"},
+  {name:"Mannitol",cls:"Osmotic Diuretic",use:"AKI prevention, cerebral edema, ↑ ICP",moa:"↑ osmotic pressure in proximal tubule → draws fluid from interstitium into blood → ↑ urine output and ICP reduction",nursing:"Monitor serum osmolality (goal <320 mOsm/kg). Use inline filter (crystallizes). Watch for pulmonary edema from rapid fluid shifts.",alert:"⚠️ Contraindicated in anuria and HF — can worsen fluid overload if kidneys cannot excrete it"},
+  {name:"Sodium Polystyrene Sulfonate (Kayexalate)",cls:"Cation-Exchange Resin",use:"Hyperkalemia in AKI/CKD",moa:"Exchanges sodium for potassium in the GI tract → K⁺ bound to resin and excreted in stool",nursing:"Monitor K⁺ and Na⁺ levels. Onset 1–2 hours. May cause Na⁺ retention → monitor for fluid overload. Give with sorbitol cautiously.",alert:"⚠️ Risk of intestinal necrosis (especially post-op). Sodium retention can worsen fluid overload"},
+  {name:"Amphojel (Aluminum Hydroxide)",cls:"Phosphate Binder",use:"Hyperphosphatemia in CKD",moa:"Binds dietary phosphate in GI tract → forms insoluble aluminum phosphate → excreted in stool (prevents GI absorption)",nursing:"MUST administer WITH meals to bind dietary phosphate. Monitor serum phosphate. Check aluminum levels with long-term use.",alert:"⚠️ Aluminum toxicity with prolonged use — calcium-based binders (calcium carbonate) preferred for long-term management"},
+  {name:"Epoetin Alfa (Epogen)",cls:"Erythropoiesis-Stimulating Agent (ESA)",use:"Anemia of CKD",moa:"Synthetic erythropoietin (EPO) → binds EPO receptors in bone marrow → stimulates erythroid progenitor cell production",nursing:"Monitor Hgb every 1–2 weeks (target 10–12 g/dL — do NOT overcorrect above 12). Monitor BP — HTN common. Give SQ or IV.",alert:"⚠️ Risk of hypertension, thrombosis (stroke, MI, DVT), and pure red cell aplasia if Hgb rises too rapidly"},
+  {name:"Calcium Gluconate",cls:"Electrolyte / Cardiac Membrane Stabilizer",use:"Severe hyperkalemia (emergency cardiac protection)",moa:"Raises threshold potential of cardiac cells → stabilizes membrane against depolarization — does NOT lower serum K⁺",nursing:"Give IV slowly with continuous cardiac monitoring. Onset within minutes. Effect lasts 30–60 minutes only. Always follow with K⁺-lowering agents.",alert:"⚠️ TEMPORARY cardiac protection only — must always follow with Kayexalate, insulin/dextrose, or emergent dialysis"},
+  {name:"Regular Insulin + Dextrose 50%",cls:"Electrolyte Shift Agent",use:"Hyperkalemia — acute management (buys time)",moa:"Insulin activates Na-K-ATPase → drives K⁺ into cells. Dextrose 50% prevents hypoglycemia. Onset 15–30 minutes.",nursing:"Monitor blood glucose every hour × 4 after administration. Effect temporary (2–6 hrs) — K⁺ will return to serum later. Must use with other K⁺-lowering agents.",alert:"⚠️ Hypoglycemia risk — ALWAYS administer dextrose concurrently. Temporary shift only — does not remove K⁺"},
+  {name:"Sodium Bicarbonate",cls:"Alkalinizing Agent",use:"Metabolic acidosis in AKI/CKD",moa:"Provides HCO₃⁻ to buffer excess H⁺ ions → corrects metabolic acidosis and helps shift K⁺ into cells",nursing:"Monitor ABG and serum HCO₃⁻. IV form for severe acidosis; oral sodium bicarbonate tablets for chronic CKD maintenance. Also used in hyperkalemia.",alert:"⚠️ Metabolic alkalosis, hypernatremia, and fluid overload risk with excessive dosing"},
+  {name:"Tacrolimus (FK-506 / Prograf)",cls:"Calcineurin Inhibitor",use:"Transplant immunosuppression",moa:"Inhibits calcineurin → blocks IL-2 transcription → suppresses T-lymphocyte activation and proliferation",nursing:"Monitor tacrolimus drug levels (narrow therapeutic window: 5–20 ng/mL). Watch for nephrotoxicity, neurotoxicity (tremors), hyperglycemia, HTN.",alert:"⚠️ Nephrotoxic — paradoxically can damage the transplanted kidney. Grapefruit juice significantly increases blood levels"},
+  {name:"Mycophenolate Mofetil (Cellcept)",cls:"Antiproliferative Immunosuppressant",use:"Transplant rejection prevention (with tacrolimus + prednisone)",moa:"Inhibits inosine monophosphate dehydrogenase (IMPDH) → selectively blocks T and B lymphocyte proliferation",nursing:"Take consistently — with or without food. Monitor CBC for leukopenia/thrombocytopenia. Avoid pregnancy (Category D teratogen — causes fetal loss/malformations).",alert:"⚠️ Do NOT crush tablets (cytotoxic). GI side effects (N/V, diarrhea) common. Requires reliable contraception in women of childbearing age"}
+];
+
+const catColors = {
+  AKI:"#c0392b", CKD:"#8e44ad", Dialysis:"#27ae60",
+  Transplant:"#d35400", Complications:"#16a085", Nursing:"#2471a3"
+};
+const categories = ["All","AKI","CKD","Complications","Dialysis","Transplant","Nursing"];
+
+let selectedCat = "All";
+let currentQ = 0, score = 0, selected = null, answered = [];
+let filteredQs = [...questions];
+
+function buildBranches() {
+  const grid = document.getElementById("branches");
+  branches.forEach(b => {
+    const card = document.createElement("div");
+    card.className = "branch-card";
+    card.style.borderLeftColor = b.color;
+    card.innerHTML = `
+      <div class="branch-header">
+        <div class="left">
+          <span class="branch-icon">${b.icon}</span>
+          <span class="branch-label" style="color:${b.color}">${b.label}</span>
+        </div>
+        <span class="branch-arrow" style="color:${b.color}" id="arr-${b.id}">▸</span>
+      </div>
+      <ul class="branch-items" id="items-${b.id}" style="display:none">
+        ${b.items.map(i=>`<li><span class="dot" style="color:${b.color}">◆</span>${i}</li>`).join("")}
+      </ul>`;
+    card.onclick = () => {
+      const ul = document.getElementById("items-"+b.id);
+      const arr = document.getElementById("arr-"+b.id);
+      const open = ul.style.display !== "none";
+      ul.style.display = open ? "none" : "block";
+      arr.textContent = open ? "▸" : "▾";
+      card.style.background = open ? "rgba(255,255,255,0.03)" : `${b.color}11`;
+      card.style.borderColor = open ? "rgba(255,255,255,0.1)" : b.color;
+      card.style.boxShadow = open ? "none" : `0 4px 20px ${b.color}33`;
+    };
+    grid.appendChild(card);
+  });
+}
+
+function buildFilters() {
+  const cf = document.getElementById("cat-filters");
+  categories.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "cat-btn" + (cat === "All" ? " active" : "");
+    btn.style.background = cat === "All" ? "#1a5276" : "rgba(255,255,255,0.07)";
+    btn.style.color = cat === "All" ? "#fff" : "#a09070";
+    const count = cat === "All" ? questions.length : questions.filter(q=>q.category===cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      selectedCat = cat;
+      document.querySelectorAll(".cat-btn").forEach(b => {
+        b.classList.remove("active");
+        b.style.background = "rgba(255,255,255,0.07)";
+        b.style.color = "#a09070";
+      });
+      btn.classList.add("active");
+      btn.style.background = catColors[cat] || "#1a5276";
+      btn.style.color = "#fff";
+      filteredQs = cat === "All" ? [...questions] : questions.filter(q=>q.category===cat);
+      document.getElementById("q-count").textContent = filteredQs.length;
+    };
+    cf.appendChild(btn);
+  });
+}
+
+function buildDrugs() {
+  const grid = document.getElementById("drugs-grid");
+  drugs.forEach(d => {
+    grid.innerHTML += `
+      <div class="drug-card">
+        <div class="drug-top">
+          <div>
+            <div class="drug-name">${d.name}</div>
+            <div class="drug-class">${d.cls.toUpperCase()}</div>
+          </div>
+          <div class="drug-use-badge">${d.use}</div>
+        </div>
+        <div class="drug-moa"><span>MOA: </span>${d.moa}</div>
+        <div class="drug-nursing"><span>Nursing: </span>${d.nursing}</div>
+        <div class="drug-alert">⚠️ ${d.alert}</div>
+      </div>`;
+  });
+}
+
+function showTab(tab) {
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById(tab+"-panel").classList.add("active");
+  document.querySelectorAll(".tab-btn")[["map","quiz","drugs"].indexOf(tab)].classList.add("active");
+}
+
+function startQuiz() {
+  currentQ = 0; score = 0; selected = null; answered = [];
+  document.getElementById("quiz-start-screen").style.display = "none";
+  document.getElementById("quiz-results-screen").style.display = "none";
+  document.getElementById("quiz-question-screen").style.display = "block";
+  renderQ();
+}
+
+function renderQ() {
+  const q = filteredQs[currentQ];
+  document.getElementById("q-num-label").textContent = `Question ${currentQ+1} of ${filteredQs.length}`;
+  const badge = document.getElementById("q-cat-badge");
+  badge.textContent = q.category.toUpperCase();
+  badge.style.background = `${catColors[q.category]||"#1a5276"}33`;
+  badge.style.border = `1px solid ${catColors[q.category]||"#1a5276"}`;
+  badge.style.color = catColors[q.category] || "#5dade2";
+  document.getElementById("progress-fill").style.width = `${(currentQ/filteredQs.length)*100}%`;
+  document.getElementById("q-text").textContent = q.q;
+  const opts = document.getElementById("options");
+  opts.innerHTML = "";
+  q.options.forEach((opt,idx) => {
+    const btn = document.createElement("button");
+    btn.className = "opt-btn";
+    btn.textContent = opt;
+    btn.onclick = () => handleAnswer(idx);
+    opts.appendChild(btn);
+  });
+  document.getElementById("rationale-box").style.display = "none";
+  selected = null;
+}
+
+function handleAnswer(idx) {
+  if (selected !== null) return;
+  selected = idx;
+  const q = filteredQs[currentQ];
+  const correct = idx === q.answer;
+  if (correct) score++;
+  answered.push({qIdx:currentQ, selected:idx, correct});
+  document.querySelectorAll(".opt-btn").forEach((btn,i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add("correct");
+    else if (i === idx && !correct) btn.classList.add("wrong");
+  });
+  document.getElementById("rationale-text").textContent = q.rationale;
+  const nb = document.getElementById("next-btn");
+  nb.textContent = currentQ+1 >= filteredQs.length ? "See Results →" : "Next Question →";
+  nb.style.background = currentQ+1 >= filteredQs.length ? "#27ae60" : "#1a5276";
+  document.getElementById("rationale-box").style.display = "block";
+}
+
+function nextQ() {
+  if (currentQ+1 >= filteredQs.length) { showResults(); return; }
+  currentQ++;
+  renderQ();
+}
+
+function showResults() {
+  document.getElementById("quiz-question-screen").style.display = "none";
+  document.getElementById("quiz-results-screen").style.display = "block";
+  const pct = score / filteredQs.length;
+  document.getElementById("trophy").textContent = pct >= 0.8 ? "🏆" : pct >= 0.6 ? "📚" : "💪";
+  document.getElementById("big-score").textContent = `${score}/${filteredQs.length}`;
+  document.getElementById("big-score").style.color = pct >= 0.8 ? "#27ae60" : "#e67e22";
+  document.getElementById("pct-score").textContent = `${Math.round(pct*100)}% Correct`;
+  document.getElementById("feedback").textContent = pct >= 0.8
+    ? "Excellent! NCLEX-ready on this topic."
+    : pct >= 0.6 ? "Good progress — review missed concepts below."
+    : "Keep studying — focus on your weak areas below.";
+  document.getElementById("feedback").style.color = pct >= 0.8 ? "#7dcea0" : "#e57373";
+  const missed = answered.filter(a=>!a.correct);
+  const ms = document.getElementById("missed-section");
+  if (missed.length > 0) {
+    ms.innerHTML = `<h3>❌ MISSED QUESTIONS — REVIEW</h3>`;
+    missed.forEach(a => {
+      const q = filteredQs[a.qIdx];
+      ms.innerHTML += `<div class="missed-item">
+        <div class="missed-q">${q.q}</div>
+        <div class="missed-yours">Your answer: ${q.options[a.selected]}</div>
+        <div class="missed-correct">✓ Correct: ${q.options[q.answer]}</div>
+        <div class="missed-rat">${q.rationale}</div>
+      </div>`;
+    });
+  } else { ms.innerHTML = ""; }
+}
+
+function backToStart() {
+  document.getElementById("quiz-results-screen").style.display = "none";
+  document.getElementById("quiz-question-screen").style.display = "none";
+  document.getElementById("quiz-start-screen").style.display = "block";
+}
+
+buildBranches();
+buildFilters();
+buildDrugs();
+</script>
+</body>
+</html>
