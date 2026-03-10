@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GU/Renal Module – NURS 2210</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0d1117; color: #e6edf3; font-family: Georgia, serif; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+    button { font-family: Georgia, serif; cursor: pointer; transition: opacity 0.15s; }
+    button:hover { opacity: 0.82; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const conceptData = {
+      nodes: [
+        {
+          id: "aki", label: "Acute Kidney Injury (AKI)", color: "#d62828",
+          children: [
+            { label: "Pre-Renal", detail: "↓ blood flow: dehydration, heart failure, ↓CO, sepsis, hemorrhage" },
+            { label: "Intra-Renal", detail: "Direct damage: ATN, ischemia, nephrotoxins, hemolyzed RBCs, myoglobin" },
+            { label: "Post-Renal", detail: "Obstruction: BPH, calculi, prostate cancer, tumors, bilateral ureteral obstruction" },
+            { label: "Oliguric Phase", detail: "<400 mL/day urine; occurs 1-7 days post-injury; lasts 10-14 days; ↑BUN/Cr, hyperkalemia, metabolic acidosis" },
+            { label: "Diuretic Phase", detail: "1-5+ L/day urine output; risk of hypokalemia, hyponatremia, and dehydration" },
+            { label: "Recovery Phase", detail: "GFR increases; BUN/Cr normalize; urine output 1-2 L/day; may take up to 12 months" },
+          ]
+        },
+        {
+          id: "ckd", label: "Chronic Kidney Disease (CKD)", color: "#6a4c93",
+          children: [
+            { label: "Top Causes", detail: "Diabetes mellitus (50%), Hypertension (25%) — together = 75% of all CKD" },
+            { label: "Stages 1–2", detail: "GFR 60–90+: kidney damage with normal or mild loss of function; often asymptomatic" },
+            { label: "Stages 3a–3b", detail: "GFR 30–59: mild-to-severe loss of function; electrolyte issues begin" },
+            { label: "Stage 4–5 (ESRD)", detail: "GFR <30 → <15: severe loss to kidney failure; renal replacement therapy required" },
+            { label: "Uremia S/S", detail: "Nausea, fatigue, confusion, pruritus, uremic frost on skin (late sign)" },
+            { label: "System Effects", detail: "HTN, anemia (↓EPO), hyperkalemia, metabolic acidosis, renal osteodystrophy" },
+          ]
+        },
+        {
+          id: "dialysis", label: "Dialysis", color: "#1b7a55",
+          children: [
+            { label: "Hemodialysis", detail: "3-4x/week; fistula must mature ≥6 weeks; NEVER take BP or draw blood on VAD arm; palpate thrill, auscultate bruit" },
+            { label: "Peritoneal Dialysis", detail: "Inflow → Dwell → Drain; uses peritoneal membrane; peritonitis = #1 complication; strict aseptic technique required" },
+            { label: "CRRT", detail: "For hemodynamically UNSTABLE patients; continuous 8-12+ hrs; slower removal = hemodynamic stability" },
+            { label: "AEIOU Indications", detail: "Acidosis · Electrolyte problems · Intoxication · fluid Overload · Uremic symptoms" },
+            { label: "Disequilibrium Syndrome", detail: "Post-HD complication: headache, N/V, altered LOC, hypertension from rapid fluid/solute shifts" },
+          ]
+        },
+        {
+          id: "transplant", label: "Kidney Transplant", color: "#0077b6",
+          children: [
+            { label: "Hyperacute Rejection", detail: "Minutes to hours post-op; antibody-mediated; IRREVERSIBLE — kidney must be removed" },
+            { label: "Acute Rejection", detail: "Days to months post-op; fever, oliguria, ↑creatinine, graft tenderness; TREATABLE with immunosuppression" },
+            { label: "Chronic Rejection", detail: "Months to years; progressive azotemia + proteinuria + HTN; IRREVERSIBLE → graft failure" },
+            { label: "Immunosuppression", detail: "Imuran (azathioprine) + Cellcept (mycophenolate) + Prednisone; required for LIFE" },
+            { label: "Steroid Side Effects", detail: "Impaired wound healing, osteoporosis, Cushingoid effects, glucose intolerance, cataracts, infection risk" },
+            { label: "Post-op Care", detail: "I&O every 30-60 min; monitor serum creatinine; watch for hemorrhage, ureteral anastomosis failure, infection" },
+          ]
+        },
+        {
+          id: "nursing", label: "Nursing Priorities", color: "#e85d04",
+          children: [
+            { label: "Critical Alert", detail: "Report urine output <30 mL/hr IMMEDIATELY — indicates inadequate renal perfusion" },
+            { label: "Daily Weight", detail: "Same scale · same time · same clothing · after voiding — gold standard for fluid monitoring" },
+            { label: "Key Labs to Monitor", detail: "BUN, Creatinine, K+, Na+, HCO3-, CBC, ABG, serum electrolytes" },
+            { label: "Nephrotoxins to Avoid", detail: "Aminoglycosides, NSAIDs, Penicillin, radiologic contrast dye, cephalosporins, chemotherapy agents" },
+            { label: "Renal Diet", detail: "↓ protein (1g/kg to minimize azotemia), ↑ carbs (calorie/protein sparing), ↓ K+, ↓ Na+, ↓ phosphate" },
+            { label: "Key Medications", detail: "Kayexalate (↓K+), Amphojel WITH meals (↓phosphate), Epogen (↑RBC production), Lasix (fluid overload)" },
+          ]
+        },
+      ]
+    };
+
+    const questions = [
+      { q: "A client with AKI has a urine output of 200 mL in 24 hours. The nurse identifies this as which phase?", options: ["A. Diuretic phase", "B. Recovery phase", "C. Oliguric phase", "D. Maintenance phase"], answer: "C", explain: "Oliguria is defined as <400 mL/day and occurs within 1-7 days of kidney injury during the oliguric phase, lasting 10-14 days." },
+      { q: "Which electrolyte imbalance is MOST life-threatening in a client with AKI during the oliguric phase?", options: ["A. Hyponatremia", "B. Hyperkalemia", "C. Hypocalcemia", "D. Hypomagnesemia"], answer: "B", explain: "Hyperkalemia is most life-threatening because impaired kidneys cannot excrete potassium, leading to dangerous cardiac dysrhythmias and ECG changes (peaked T waves)." },
+      { q: "The nurse is caring for a client with AKI. Which finding requires IMMEDIATE intervention?", options: ["A. BUN of 28 mg/dL", "B. Urine output of 25 mL/hour", "C. Serum creatinine of 1.2 mg/dL", "D. Specific gravity of 1.020"], answer: "B", explain: "Urine output less than 30 mL/hour must be reported immediately — it indicates inadequate renal perfusion and potential kidney deterioration." },
+      { q: "A client with AKI develops Kussmaul respirations. This is a compensatory mechanism for which condition?", options: ["A. Respiratory alkalosis", "B. Metabolic alkalosis", "C. Metabolic acidosis", "D. Respiratory acidosis"], answer: "C", explain: "Kussmaul respirations (deep, rapid breathing) compensate for metabolic acidosis by blowing off CO2. The impaired kidney cannot excrete H+ ions or regenerate bicarbonate." },
+      { q: "Which type of AKI is caused by benign prostatic hyperplasia?", options: ["A. Pre-renal AKI", "B. Intrarenal AKI", "C. Post-renal AKI", "D. Functional AKI"], answer: "C", explain: "BPH causes mechanical obstruction of urine outflow — the hallmark of post-renal AKI. Other causes include calculi, prostate cancer, and bilateral ureteral obstruction." },
+      { q: "During the diuretic phase of AKI, the nurse should MOST closely monitor for:", options: ["A. Hyperkalemia and fluid overload", "B. Hypokalemia and dehydration", "C. Metabolic acidosis", "D. Pulmonary edema"], answer: "B", explain: "In the diuretic phase, urine output rises to 1-5+ L/day. Large electrolyte losses create significant risk for hyponatremia, hypokalemia, and dehydration." },
+      { q: "Which medication is used to treat hyperkalemia in a client with AKI?", options: ["A. Furosemide (Lasix)", "B. Sodium polystyrene sulfonate (Kayexalate)", "C. Mannitol", "D. Dopamine"], answer: "B", explain: "Kayexalate is a cation-exchange resin that removes potassium from the body by exchanging sodium for potassium in the intestine, lowering serum K+ levels." },
+      { q: "Which drug class should be avoided due to nephrotoxicity?", options: ["A. Beta blockers", "B. Calcium channel blockers", "C. Aminoglycosides", "D. ACE inhibitors"], answer: "C", explain: "Aminoglycosides (e.g., gentamicin) are nephrotoxic and can cause acute tubular necrosis. Other nephrotoxins include NSAIDs, contrast dye, cephalosporins, and chemotherapy agents." },
+      { q: "What is the MOST common cause of AKI in hospitalized patients?", options: ["A. Post-renal obstruction", "B. Glomerulonephritis", "C. Ischemia, sepsis, and nephrotoxins", "D. Bilateral ureteral obstruction"], answer: "C", explain: "Ischemia, sepsis, and nephrotoxins are the most common causes of AKI. Approximately 30% of critically ill hospitalized patients develop AKI with a mortality rate up to 70-90%." },
+      { q: "A client in oliguric AKI has distended neck veins, bounding pulse, and edema. The nurse should anticipate:", options: ["A. Dehydration", "B. Pulmonary edema and heart failure", "C. Hypovolemia", "D. Renal artery thrombosis"], answer: "B", explain: "These are signs of fluid overload from the kidneys' inability to excrete fluid. This can progress to heart failure, pulmonary edema, and pericardial/pleural effusions." },
+      { q: "A client's GFR is 35 mL/min. The nurse identifies this as which stage of CKD?", options: ["A. Stage 2", "B. Stage 3a", "C. Stage 3b", "D. Stage 4"], answer: "C", explain: "Stage 3b CKD is defined as a GFR of 30-44 mL/min, representing moderate to severe loss of kidney function." },
+      { q: "Which finding is consistent with uremia in a client with ESRD?", options: ["A. Polyuria, polydipsia, hypertension", "B. Nausea, fatigue, confusion, and pruritus", "C. Bradycardia and hypothermia", "D. Increased appetite and weight gain"], answer: "B", explain: "Uremia (urea in the blood) presents with nausea, fatigue, confusion, and pruritus. Uremic frost — urea crystals depositing on the skin — is a late manifestation." },
+      { q: "Which two conditions account for 75% of all CKD cases?", options: ["A. Glomerulonephritis and lupus", "B. Diabetes and hypertension", "C. Polycystic kidney disease and UTIs", "D. Nephrolithiasis and pyelonephritis"], answer: "B", explain: "Diabetes causes approximately 50% of CKD cases and hypertension causes approximately 25%, together accounting for 75% of all chronic kidney disease." },
+      { q: "A client with CKD asks why they need to restrict potassium. The nurse's BEST response is:", options: ["A. 'Your kidneys can no longer excrete potassium, which can cause dangerous heart rhythms.'", "B. 'Potassium restriction prevents kidney stones.'", "C. 'Too much potassium only causes muscle weakness.'", "D. 'Potassium restriction is optional.'"], answer: "A", explain: "In CKD, impaired potassium excretion leads to hyperkalemia, which can cause life-threatening cardiac dysrhythmias including ventricular fibrillation and cardiac arrest." },
+      { q: "Which medication is prescribed for a CKD client to stimulate red blood cell production?", options: ["A. Kayexalate", "B. Amphojel", "C. Epogen (erythropoietin)", "D. Mannitol"], answer: "C", explain: "Epogen (epoetin alfa) stimulates RBC production to treat the anemia of CKD. Healthy kidneys produce erythropoietin naturally, but CKD severely impairs this function." },
+      { q: "The nurse is caring for a client on hemodialysis. Which action is MOST important?", options: ["A. Take BP in the arm with the AV fistula", "B. Assess for thrill and bruit in the fistula arm", "C. Administer morning medications before dialysis", "D. Encourage high-potassium foods between sessions"], answer: "B", explain: "Palpating for thrill (vibration) and auscultating for bruit assess AV fistula patency. Absence of either indicates possible clotting and requires immediate intervention." },
+      { q: "When should antihypertensive medications be held before hemodialysis?", options: ["A. 12 hours before", "B. 4-6 hours before", "C. Administer as scheduled", "D. 24 hours before"], answer: "B", explain: "Antihypertensives are held 4-6 hours before hemodialysis because dialysis removes fluid and can cause hypotension — antihypertensives would compound this dangerous risk." },
+      { q: "After hemodialysis, a client reports headache, nausea, and altered LOC. The nurse recognizes this as:", options: ["A. Hyperkalemia", "B. Hypoglycemia", "C. Dialysis disequilibrium syndrome", "D. Air embolism"], answer: "C", explain: "Dialysis disequilibrium syndrome occurs post-dialysis due to rapid fluid and solute shifts. Signs include headache, nausea/vomiting, altered LOC, and hypertension." },
+      { q: "An AV fistula assessment reveals no thrill on palpation. The PRIORITY nursing action is:", options: ["A. Apply a warm compress", "B. Notify the provider immediately", "C. Elevate the extremity", "D. Document and reassess in 1 hour"], answer: "B", explain: "Absence of thrill indicates possible fistula thrombosis — a vascular emergency. The provider must be notified immediately as this is the patient's lifeline for dialysis." },
+      { q: "How long must an AV fistula mature before use in hemodialysis?", options: ["A. 2 weeks", "B. 3-4 weeks", "C. A minimum of 6 weeks", "D. 3 months"], answer: "C", explain: "The AV fistula must mature for a minimum of 6 weeks so vein walls thicken enough to withstand the repeated needle punctures required for hemodialysis access." },
+      { q: "Which type of dialysis uses the peritoneal membrane as the filtering surface?", options: ["A. Hemodialysis", "B. CRRT", "C. Peritoneal dialysis", "D. Aquapheresis"], answer: "C", explain: "Peritoneal dialysis uses the peritoneal membrane as a semipermeable filter. Dialysate is instilled, dwells to allow osmosis, then drains by gravity into a drain bag." },
+      { q: "The nurse suspects peritonitis in a peritoneal dialysis client. Which finding supports this?", options: ["A. Clear return dialysate", "B. Cloudy return dialysate with abdominal pain", "C. Amber-colored return dialysate", "D. Decreased abdominal girth"], answer: "B", explain: "Cloudy return dialysate is the hallmark sign of peritonitis — the #1 complication of peritoneal dialysis. Additional signs include abdominal pain, fever, and malaise." },
+      { q: "When warming peritoneal dialysis fluid, the nurse should use:", options: ["A. Microwave on high for 3 minutes", "B. Boiling water bath", "C. Low-setting heating pad to 98.6°F", "D. Room temperature is acceptable"], answer: "C", explain: "Dialysate is warmed to body temperature (98.6°F) with a low-setting heating pad. Microwaves create uneven hot spots that could cause internal burns to the peritoneum." },
+      { q: "CRRT is the preferred dialysis method for which patient?", options: ["A. Outpatient CKD clients", "B. Hemodynamically unstable ICU patients", "C. Patients with AV fistulas only", "D. Patients with peritonitis"], answer: "B", explain: "CRRT is used for hemodynamically unstable patients. Its slow, continuous removal of fluid over 8-12+ hours maintains hemodynamic stability that rapid hemodialysis cannot." },
+      { q: "A transplant recipient develops fever, oliguria, and rising creatinine 2 weeks post-op. The nurse recognizes:", options: ["A. Hyperacute rejection", "B. Acute rejection", "C. Chronic rejection", "D. Graft-versus-host disease"], answer: "B", explain: "Acute rejection occurs days to months post-transplant and presents with fever, oliguria, graft tenderness, and rising serum creatinine. It is treatable if caught early." },
+      { q: "What occurs within minutes to hours of kidney transplantation and is irreversible?", options: ["A. Acute rejection", "B. Chronic rejection", "C. Hyperacute rejection", "D. Steroid-induced nephropathy"], answer: "C", explain: "Hyperacute (antibody-mediated) rejection occurs minutes to hours post-transplant due to pre-formed antibodies. It is irreversible — the kidney must be surgically removed." },
+      { q: "Which immunosuppressive combination is commonly used post-kidney transplant?", options: ["A. Prednisone + Kayexalate + Epogen", "B. Imuran + Cellcept + Prednisone", "C. Lasix + Mannitol + Dopamine", "D. Cyclosporine + Aspirin + Penicillin"], answer: "B", explain: "Imuran (azathioprine) and Cellcept (mycophenolate) combined with Prednisone are the standard drugs used to prevent kidney transplant rejection. Therapy is lifelong." },
+      { q: "A transplant recipient on long-term corticosteroids should be monitored for:", options: ["A. Hypokalemia and weight loss", "B. Impaired wound healing, osteoporosis, and Cushingoid effects", "C. Improved immune function", "D. Hypoglycemia and decreased appetite"], answer: "B", explain: "Long-term steroid use causes impaired wound healing, emotional disturbances, osteoporosis, Cushingoid effects, glucose intolerance, cataracts, and increased infection risk." },
+      { q: "The most accurate technique for daily weights in a renal client is:", options: ["A. Weigh after breakfast on any scale", "B. Weigh at any time on the same scale", "C. Same scale, same time, same clothing, after voiding", "D. Use different scales for comparison"], answer: "C", explain: "Accurate fluid assessment requires the same scale, same time of day, same type of clothing, and voiding first to eliminate variables that could skew weight results." },
+      { q: "A client's return peritoneal dialysate has a brown tinge. This suggests:", options: ["A. Normal dialysate return", "B. Possible blood or bowel contamination", "C. Successful dialysis", "D. Dehydration"], answer: "B", explain: "Any discoloration of return dialysate is abnormal and requires immediate reporting: cloudy = infection/peritonitis, brown/red = blood, foul odor = possible bowel perforation." },
+      { q: "Which laboratory finding indicates the recovery phase of AKI?", options: ["A. BUN 80 mg/dL, creatinine 4.2 mg/dL", "B. Urine output 150 mL/day", "C. BUN and creatinine plateau then decrease toward normal", "D. Bicarbonate of 14 mEq/L"], answer: "C", explain: "The recovery phase begins when GFR increases. BUN and creatinine levels plateau and then decline toward normal values. Urine output returns to 1-2 L/day." },
+      { q: "Which dietary modification is appropriate for a client with AKI?", options: ["A. High protein to prevent muscle wasting", "B. Low carbohydrate, high protein", "C. Restricted protein, increased carbohydrates, restricted Na+ and K+", "D. Unrestricted diet with vitamin supplements"], answer: "C", explain: "Protein is restricted to 1 g/kg to minimize azotemia. Carbohydrates are increased for calories and protein-sparing effect. Sodium and potassium are restricted as needed." },
+      { q: "Which finding indicates fluid overload in a client with oliguric AKI?", options: ["A. Flat neck veins, weak pulse, dry mucous membranes", "B. Distended neck veins, bounding pulse, edema, hypertension", "C. Tachycardia, hypotension, decreased skin turgor", "D. Weight loss of 2 kg"], answer: "B", explain: "Fluid retention from decreased urine output presents as distended neck veins, bounding pulse, pitting edema, hypertension, and rapid weight gain." },
+      { q: "Uremic frost in CKD would be observed:", options: ["A. Only on the lower extremities", "B. On the skin surface, particularly the face and forehead", "C. Only in the oral cavity", "D. Beneath the fingernails"], answer: "B", explain: "Uremic frost is urea crystals depositing on the skin surface — particularly visible on the face and forehead. It is a late-stage manifestation of ESRD." },
+      { q: "A CKD client has elevated phosphate. The nurse expects to administer:", options: ["A. Kayexalate", "B. Amphojel (aluminum hydroxide)", "C. Sodium bicarbonate", "D. Folic acid"], answer: "B", explain: "Amphojel is a phosphate binder. It must be administered WITH meals to bind dietary phosphate in the GI tract and prevent absorption, treating hyperphosphatemia." },
+      { q: "Which statement by a CKD client shows understanding of fluid management?", options: ["A. 'I can drink as much water as I want.'", "B. 'I should limit fluids to 1-2 liters per day and restrict sodium.'", "C. 'I only restrict fluids when on dialysis.'", "D. 'Extra fluids will flush out my kidneys.'"], answer: "B", explain: "Fluid intake of 1-2 L/day is recommended for CKD. Sodium restriction (2-4 g/day) is essential because sodium retention worsens fluid overload and hypertension." },
+      { q: "Post-kidney transplant, which finding warrants IMMEDIATE intervention?", options: ["A. Urine output of 100 mL/hour", "B. Mild incisional pain rated 3/10", "C. Sudden decrease in urine output with fever", "D. Creatinine of 1.4 mg/dL on day 2"], answer: "C", explain: "Sudden oliguria with fever post-transplant suggests acute rejection or ureteral anastomosis failure — both are emergencies requiring immediate provider notification." },
+      { q: "Which population is at HIGHEST risk for developing CKD?", options: ["A. Young adult Asian females", "B. Middle-aged Caucasian males", "C. Older adults, African Americans, and Native Americans", "D. Adolescents with recurrent UTIs"], answer: "C", explain: "CKD is most common in older adults and disproportionately affects African Americans and Native Americans due to higher prevalence of diabetes and hypertension in these groups." },
+      { q: "The nurse palpates an AV fistula with no thrill. The PRIORITY action is:", options: ["A. Apply a warm compress", "B. Notify the provider immediately", "C. Elevate the extremity", "D. Document and reassess in 1 hour"], answer: "B", explain: "Absent thrill indicates possible fistula thrombosis — a vascular emergency. The provider must be notified immediately to restore access patency before the clot becomes irreversible." },
+      { q: "In the mnemonic AEIOU for dialysis indications, 'I' stands for:", options: ["A. Inflammation", "B. Infection", "C. Intoxication", "D. Ischemia"], answer: "C", explain: "AEIOU = Acidosis, Electrolyte problems (hyperkalemia), Intoxication/Ingestions, fluid Overload, Uremic symptoms. Drug or toxin intoxication is a key dialysis indication." },
+      { q: "A CKD client has K+ of 6.8 mEq/L with peaked T waves on ECG. The PRIORITY action is:", options: ["A. Encourage a high-potassium diet", "B. Notify provider and prepare to administer Kayexalate", "C. Administer a potassium supplement", "D. Restrict oral fluids only"], answer: "B", explain: "K+ of 6.8 with ECG changes is a life-threatening emergency. Notify the provider immediately and prepare Kayexalate, calcium gluconate (cardiac protection), and insulin/dextrose." },
+      { q: "Which assessment is performed BEFORE initiating peritoneal dialysis?", options: ["A. Post-void residual measurement", "B. Vital signs, abdominal girth, and respiratory assessment", "C. Echocardiogram", "D. 24-hour urine collection"], answer: "B", explain: "Pre-dialysis assessment includes vital signs, abdominal girth (baseline to detect fluid changes), and respiratory assessment — a dialysate-filled abdomen can impair diaphragm movement." },
+      { q: "A client with Stage 5 CKD and GFR of 10 mL/min has:", options: ["A. Mild kidney damage with normal function", "B. Moderate loss of kidney function", "C. End-stage renal disease requiring renal replacement therapy", "D. Early CKD not requiring treatment"], answer: "C", explain: "Stage 5 CKD = GFR <15 mL/min = less than 15% kidney function = ESRD. Renal replacement therapy (dialysis or transplant) is required for survival at this stage." },
+      { q: "Amphojel should be administered:", options: ["A. On an empty stomach only", "B. At bedtime with milk", "C. With meals to bind dietary phosphate", "D. Only when phosphate exceeds 8 mg/dL"], answer: "C", explain: "Amphojel must be given WITH meals so it binds dietary phosphate in the GI tract before it is absorbed — this is essential for its phosphate-lowering effect to work." },
+      { q: "A transplant client asks why they need lifelong immunosuppressants. The BEST response is:", options: ["A. 'They prevent surgical site infections.'", "B. 'Your immune system will attack the foreign kidney; these drugs prevent rejection.'", "C. 'These are only needed for the first year.'", "D. 'They help the kidney filter toxins better.'"], answer: "B", explain: "The immune system recognizes the transplanted kidney as foreign and will mount a rejection response. Lifelong immunosuppressive therapy is required to prevent organ rejection." },
+      { q: "Which finding indicates inadequate drain return in peritoneal dialysis?", options: ["A. Return is clear and equal to instilled volume", "B. Return is slightly yellow", "C. Return volume is significantly less than instilled volume", "D. Return drains within 10 minutes"], answer: "C", explain: "If return volume is significantly less than instilled, the catheter may be obstructed or kinked. The nurse should assess catheter patency and reposition the client to improve drainage." },
+      { q: "Pre-renal AKI is caused by:", options: ["A. Direct kidney tissue damage from toxins", "B. Obstruction of urine outflow", "C. Factors that reduce systemic circulation and renal blood flow", "D. Autoimmune glomerulonephritis"], answer: "C", explain: "Pre-renal AKI results from reduced systemic circulation and therefore decreased renal perfusion: causes include severe dehydration, heart failure, ↓cardiac output, sepsis, and hemorrhage." },
+      { q: "Which symptom of transplant rejection should a client report immediately?", options: ["A. Mild fatigue 1-2 days post-discharge", "B. Decreased urine output, fever, tenderness over transplant site", "C. Mild ankle swelling after walking", "D. Creatinine rise from 0.9 to 1.0 mg/dL"], answer: "B", explain: "Decreased urine output, fever, and graft site tenderness are classic signs of acute rejection. Early reporting allows treatment before irreversible kidney damage occurs." },
+      { q: "Which acid-base imbalance is MOST associated with the oliguric phase of AKI?", options: ["A. Respiratory acidosis", "B. Respiratory alkalosis", "C. Metabolic alkalosis", "D. Metabolic acidosis"], answer: "D", explain: "The oliguric kidney cannot excrete H+ ions or generate bicarbonate, causing metabolic acidosis — seen as low HCO3- and low pH on arterial blood gases." },
+      { q: "A client with AKI receiving TPN is at increased risk for:", options: ["A. Hypoglycemia and dehydration", "B. Fluid overload and infection", "C. Malnutrition and weight loss", "D. Hypokalemia and metabolic alkalosis"], answer: "B", explain: "TPN increases fluid overload risk (large volumes are required) and infection risk — the glucose-rich solution supports bacterial growth, especially with central venous access." },
+      { q: "Which statement about chronic transplant rejection is accurate?", options: ["A. Occurs within 24 hours and is reversible", "B. Progresses over months to years and is irreversible", "C. Is caused by bacterial infection", "D. Responds well to increased immunosuppression"], answer: "B", explain: "Chronic rejection develops slowly over months to years and is irreversible, characterized by progressive azotemia, proteinuria, and hypertension ultimately leading to graft failure." },
+      { q: "Proteinuria in a CKD client indicates:", options: ["A. Normal kidney function", "B. Glomerular damage allowing protein to leak through the filtration membrane", "C. Adequate hydration", "D. Resolving kidney disease"], answer: "B", explain: "Proteinuria indicates glomerular membrane damage that allows protein to leak into urine. It is both a marker of kidney damage and a criterion used to diagnose and stage CKD." },
+    ];
+
+    function App() {
+      const [view, setView] = useState("map");
+      const [selected, setSelected] = useState(null);
+      const [answers, setAnswers] = useState({});
+      const [revealed, setRevealed] = useState({});
+      const [score, setScore] = useState(null);
+      const [filter, setFilter] = useState("all");
+
+      const handleAnswer = (qi, opt) => {
+        if (revealed[qi]) return;
+        setAnswers(prev => ({ ...prev, [qi]: opt }));
+      };
+
+      const handleReveal = (qi) => setRevealed(prev => ({ ...prev, [qi]: true }));
+
+      const handleScore = () => {
+        const correct = questions.filter((q, i) => answers[i] === q.answer).length;
+        setScore(correct);
+        window.scrollTo(0, 0);
+      };
+
+      const allQ = questions.map((q, i) => ({ ...q, idx: i }));
+      const filteredQ = filter === "wrong"
+        ? allQ.filter(q => revealed[q.idx] && answers[q.idx] !== q.answer)
+        : filter === "correct"
+        ? allQ.filter(q => revealed[q.idx] && answers[q.idx] === q.answer)
+        : allQ;
+
+      const wrongCount = questions.filter((q, i) => revealed[i] && answers[i] !== q.answer).length;
+      const correctCount = questions.filter((q, i) => revealed[i] && answers[i] === q.answer).length;
+      const answeredCount = Object.keys(answers).length;
+
+      return (
+        <div style={{ fontFamily: "Georgia, serif", background: "#0d1117", minHeight: "100vh", color: "#e6edf3" }}>
+
+          {/* ── HEADER ── */}
+          <div style={{ background: "linear-gradient(135deg,#1a2332,#0d1117)", borderBottom: "2px solid #e85d04", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px", position: "sticky", top: 0, zIndex: 50 }}>
+            <div>
+              <div style={{ color: "#e85d04", fontSize: "1.2rem", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase" }}>GU / Renal Module</div>
+              <div style={{ color: "#8b949e", fontSize: "0.68rem", marginTop: "2px", letterSpacing: "1px" }}>NURS 2210 · Dr. Ross · Interactive Study Tool</div>
+            </div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              {[["map", "▦ Concept Map"], ["q", "✎ 50 NCLEX Qs"]].map(([v, label]) => (
+                <button key={v} onClick={() => setView(v)} style={{ padding: "8px 18px", borderRadius: "4px", border: `2px solid ${view === v ? "#e85d04" : "#30363d"}`, background: view === v ? "#e85d04" : "transparent", color: view === v ? "#fff" : "#8b949e", fontWeight: "bold", fontSize: "0.78rem", letterSpacing: "1px" }}>{label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── CONCEPT MAP ── */}
+          {view === "map" && (
+            <div style={{ padding: "24px 20px", maxWidth: "1000px", margin: "0 auto" }}>
+              <div style={{ color: "#8b949e", fontSize: "0.68rem", letterSpacing: "3px", textAlign: "center", marginBottom: "24px", textTransform: "uppercase" }}>Click any card to expand key concepts</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "28px" }}>
+                <div onClick={() => setSelected(null)} style={{ background: "linear-gradient(135deg,#e85d04,#f77f00)", borderRadius: "50%", width: "110px", height: "110px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 35px rgba(232,93,4,0.4)", cursor: "pointer" }}>
+                  <div style={{ color: "#fff", fontWeight: "bold", fontSize: "0.85rem", textAlign: "center", letterSpacing: "1.5px", lineHeight: "1.5" }}>RENAL<br />DISORDERS</div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(175px,1fr))", gap: "14px", marginBottom: "20px" }}>
+                {conceptData.nodes.map(node => (
+                  <div key={node.id} onClick={() => setSelected(selected === node.id ? null : node.id)}
+                    style={{ background: selected === node.id ? `${node.color}15` : "#161b22", border: `2px solid ${selected === node.id ? node.color : "#21262d"}`, borderRadius: "10px", padding: "14px 16px", cursor: "pointer", transition: "all 0.2s", boxShadow: selected === node.id ? `0 0 16px ${node.color}30` : "none" }}>
+                    <div style={{ color: node.color, fontWeight: "bold", fontSize: "0.92rem", marginBottom: "5px" }}>{node.label}</div>
+                    <div style={{ color: "#8b949e", fontSize: "0.7rem" }}>{node.children.length} subtopics · click to expand</div>
+                  </div>
+                ))}
+              </div>
+              {selected && (() => {
+                const node = conceptData.nodes.find(n => n.id === selected);
+                return (
+                  <div style={{ background: "#161b22", border: `1px solid ${node.color}40`, borderRadius: "10px", padding: "20px", animation: "fadeIn 0.2s" }}>
+                    <div style={{ color: node.color, fontWeight: "bold", fontSize: "0.95rem", marginBottom: "14px", letterSpacing: "1px" }}>{node.label} — Key Concepts</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: "10px" }}>
+                      {node.children.map((child, i) => (
+                        <div key={i} style={{ background: "#0d1117", border: `1px solid ${node.color}20`, borderRadius: "8px", padding: "12px" }}>
+                          <div style={{ color: node.color, fontWeight: "bold", fontSize: "0.82rem", marginBottom: "5px" }}>{child.label}</div>
+                          <div style={{ color: "#c9d1d9", fontSize: "0.78rem", lineHeight: "1.5" }}>{child.detail}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* ── QUESTIONS ── */}
+          {view === "q" && (
+            <div style={{ padding: "20px", maxWidth: "820px", margin: "0 auto" }}>
+              {score !== null && (
+                <div style={{ background: "#0f2d0f", border: "2px solid #3fb950", borderRadius: "10px", padding: "18px 24px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "18px", animation: "fadeIn 0.3s" }}>
+                  <div style={{ color: "#3fb950", fontSize: "2.5rem", fontWeight: "bold", lineHeight: 1 }}>{score}<span style={{ fontSize: "1rem", color: "#8b949e" }}>/50</span></div>
+                  <div>
+                    <div style={{ color: "#e6edf3", fontSize: "1rem", fontWeight: "bold" }}>{Math.round(score / 50 * 100)}% Correct</div>
+                    <div style={{ color: "#8b949e", fontSize: "0.75rem", marginTop: "3px" }}>
+                      {score >= 40 ? "🏆 Excellent — NCLEX ready!" : score >= 30 ? "✅ Good — review incorrect answers below." : "📚 Keep studying — filter by 'Incorrect' to focus your review."}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: "7px", marginBottom: "18px", flexWrap: "wrap", alignItems: "center" }}>
+                <span style={{ color: "#8b949e", fontSize: "0.74rem" }}>Filter: </span>
+                {[["all", "All (50)"], ["wrong", `Incorrect (${wrongCount})`], ["correct", `Correct (${correctCount})`]].map(([f, label]) => (
+                  <button key={f} onClick={() => setFilter(f)} style={{ padding: "5px 13px", borderRadius: "20px", border: `1px solid ${filter === f ? "#e85d04" : "#30363d"}`, background: filter === f ? "#e85d04" : "transparent", color: filter === f ? "#fff" : "#8b949e", fontSize: "0.74rem" }}>{label}</button>
+                ))}
+                <span style={{ marginLeft: "auto", color: "#8b949e", fontSize: "0.72rem" }}>{answeredCount}/50 answered</span>
+              </div>
+
+              {filteredQ.map((q) => {
+                const qi = q.idx;
+                const userAns = answers[qi];
+                const isRevealed = revealed[qi];
+                return (
+                  <div key={qi} style={{ background: "#161b22", border: "1px solid #21262d", borderRadius: "10px", padding: "18px", marginBottom: "14px" }}>
+                    <div style={{ color: "#8b949e", fontSize: "0.66rem", letterSpacing: "2px", marginBottom: "7px" }}>QUESTION {qi + 1} OF 50</div>
+                    <div style={{ color: "#e6edf3", fontSize: "0.9rem", lineHeight: "1.65", marginBottom: "12px" }}>{q.q}</div>
+                    {q.options.map(opt => {
+                      const letter = opt[0];
+                      let bc = "#30363d", bg = "#0d1117", tc = "#c9d1d9";
+                      if (isRevealed) {
+                        if (letter === q.answer) { bc = "#3fb950"; bg = "#0f2d0f"; tc = "#3fb950"; }
+                        else if (letter === userAns) { bc = "#f85149"; bg = "#2d0f0f"; tc = "#f85149"; }
+                      } else if (letter === userAns) { bc = "#58a6ff"; bg = "#0f1d2d"; tc = "#58a6ff"; }
+                      return (
+                        <button key={opt} onClick={() => handleAnswer(qi, letter)}
+                          style={{ display: "block", width: "100%", textAlign: "left", padding: "9px 13px", marginBottom: "6px", borderRadius: "6px", border: `1px solid ${bc}`, background: bg, color: tc, cursor: isRevealed ? "default" : "pointer", fontSize: "0.83rem", lineHeight: "1.5" }}>
+                          {opt}
+                        </button>
+                      );
+                    })}
+                    {userAns && !isRevealed && (
+                      <button onClick={() => handleReveal(qi)} style={{ padding: "7px 16px", background: "transparent", border: "1px solid #e85d04", color: "#e85d04", borderRadius: "6px", fontSize: "0.75rem", marginTop: "4px" }}>Reveal Answer &amp; Rationale</button>
+                    )}
+                    {isRevealed && (
+                      <div style={{ background: "#0d1117", border: "1px solid #30363d", borderLeft: "3px solid #e85d04", borderRadius: "6px", padding: "12px", marginTop: "10px", color: "#c9d1d9", fontSize: "0.8rem", lineHeight: "1.6", animation: "fadeIn 0.2s" }}>
+                        <strong style={{ color: "#e85d04" }}>Rationale: </strong>{q.explain}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <button onClick={handleScore} style={{ display: "block", margin: "24px auto 40px", padding: "13px 40px", background: "#e85d04", color: "#fff", border: "none", borderRadius: "6px", fontSize: "0.9rem", fontWeight: "bold", letterSpacing: "2px" }}>✓ Calculate Final Score</button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
